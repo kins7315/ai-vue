@@ -24,7 +24,7 @@ export default defineConfig({
   server: {// 配置代理
     host: '0.0.0.0',
     port: 5173,
-    allowedHosts: 'all',
+    allowedHosts: ['.ngrok-free.dev'],
     cors: true,// 开启跨域
     strictPort: true,// 严格5173端口
     headers: {
