@@ -33,11 +33,9 @@ service.interceptors.response.use(
             ElMessage.error('响应数据为空')
             return Promise.reject('响应数据为空')
         }
-        
         // 处理业务状态码
-        if (data.code === '200') {
-            return data
-        } 
+        return data
+        
     },
     (error) => {
         // 对响应错误做点什么

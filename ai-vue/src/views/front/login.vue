@@ -64,22 +64,32 @@ const submitForm = async (formEl) => {
     await formEl.validate(async (valid, fields) => {
         if (valid) {
             console.log(formData, 'formData')
-            login(formData).then(data => {
-                // 登录成功后，将数据存储到localStorage中
-                console.log(data, 'data')
-                const userData = data.data
-                localStorage.setItem('token', userData.token)
-                localStorage.setItem('userInfo', JSON.stringify(userData.userInfo))
-                //根据用户角色跳转到不同的页面
-                if (userData.userInfo.userType === 2) {
-                    router.push('/back/dashboard')
-                } else if (userData.userInfo.userType === 1) {
-                    router.push('/')
+            login(formData).then((data) => {
+                console.log(data, '登录接口返回')
+                if (data.code !== 200 && data.code !== '200') {
+                    ElMessage.error(data.message || '登录失败')
+                    return
+                } else if (data.code === 'BUSINESS_ERROR') {
+                    ElMessage.error(data.message || '登录失败')
+                    return
+                } else {
+                    // 登录成功后，将数据存储到localStorage中
+                    console.log(data, 'data')
+                    const userData = data.data
+                    localStorage.setItem('token', userData.token)
+                    localStorage.setItem('userInfo', JSON.stringify(userData.userInfo))
+                    ElMessage.success('登录成功')
+                    //根据用户角色跳转到不同的页面
+                    if (userData.userInfo.userType === 2) {
+                        router.push('/back/dashboard')
+                    } else if (userData.userInfo.userType === 1) {
+                        router.push('/')
+                    }
                 }
+
             })
         }
     })
-
 }
 </script>
 <style lang="scss" scoped>

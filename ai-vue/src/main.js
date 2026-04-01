@@ -3,6 +3,8 @@ import { createPinia } from 'pinia'
 import './style.css'
 import App from './App.vue'
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
+import ElementPlus from 'element-plus'
+import 'element-plus/dist/index.css'
 import router from './router'
 import VueLazyload from 'vue-lazyload'
 
@@ -17,8 +19,14 @@ app.use(VueLazyload, {
   loading: new URL('@/assets/images/robot-fill.png', import.meta.url).href,
   attempt: 1
 })
+app.use(ElementPlus,{
+  message:{
+    appendTo: document.body,
+    zIndex: 9999,
+    duration: 3000,
+  }
+})
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
   app.component(key, component)
 }
-
 app.mount('#app')

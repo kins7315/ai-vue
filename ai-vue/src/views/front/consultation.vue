@@ -471,7 +471,6 @@ const handleSessionClick = (session) => {
 const handleDelete = (sessionId) => {
     if (!sessionId) return
     deleteSession(sessionId).then(() => {
-        ElMessage.success('删除成功')
         fetchSessionList().then((list) => {
             if (!list || list.length === 0) {
                 createChat()
@@ -483,6 +482,7 @@ const handleDelete = (sessionId) => {
                     createChat()
                 }
             }
+            ElMessage.success('删除成功')            
         }).catch(() => {
             createChat()
         })

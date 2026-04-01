@@ -58,7 +58,7 @@ import { ElMessage } from 'element-plus'
 import { uploadFile, createArticle, updateArticle } from '@/api/admin'
 import RichTextEditor from '../components/RichTextEditor.vue'
 
-
+const baseURL = 'http://159.75.169.224:1235'
 // 表单数据
 const formData = reactive({
     "title": '',
@@ -105,7 +105,11 @@ watch(() => props.article, (newVal) => {
         nextTick(() => {
             Object.assign(formData, newVal)// 合并新数据到表单数据
             businessId.value = newVal.id
-            imageUrl.value = baseURL + newVal.coverImage
+            if (newVal.coverImage) {
+                imageUrl.value = baseURL + newVal.coverImage
+            } else {
+                imageUrl.value = ''
+            }
         })
     }
 })
@@ -154,9 +158,13 @@ const handleRequest = async ({ file }) => {
     // console.log(businessId.value,'businessId.value')
     console.log(fileRes.data.filePath, 'fileRes.data.filePath')
     // 拼接图片URL
-    imageUrl.value = baseURL + fileRes.data.filePath
-    formData.coverImage = fileRes.data.filePath
-    console.log(imageUrl.value, 'imageUrl.value')
+    if (fileRes.data && fileRes.data.filePath) {
+        imageUrl.value = baseURL + fileRes.data.filePath
+        formData.coverImage = fileRes.data.filePath
+        console.log(imageUrl.value, 'imageUrl.value')
+    } else {
+        ElMessage.error('上传失败：无法获取文件路径')
+    }
 }
 
 // 移除封面图片
@@ -166,7 +174,6 @@ const removeImage = () => {
 }
 
 // --富文本编辑器--
-
 const handleContent = (data) => {
     // console.log(data,'data')// 富文本编辑器的输入内容
     formData.content = data.html
