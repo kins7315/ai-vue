@@ -29,14 +29,14 @@
                     <div class="emotion-intensity">
                         <span class="intensity-dots">
                             <span v-for="dot in 3" :key="dot" class="dot"
-                                :class="{ 'active': getDotClass(currentEmotion.emotionScore) >= dot }"></span>
+                                :class="{ 'active': getDotClass(currentEmotion?.emotionScore || 50) >= dot }"></span>
                         </span>
                         <span class="intensity-text">
-                            {{ getRiskText(currentEmotion.riskLevel) }}
+                            {{ getRiskText(currentEmotion?.riskLevel || 0) }}
                         </span>
                     </div>
                     <!-- 温暖建议卡片 -->
-                    <div class="warm-suggestion" v-if="currentEmotion.suggestion">
+                    <div class="warm-suggestion" v-if="currentEmotion?.suggestion">
                         <div class="suggestion-icon">💝</div>
                         <div class="suggestion-content">
                             <div class="suggestion-title">给你的一个小建议</div>
@@ -54,11 +54,11 @@
                         </div>
                     </div>
                     <!-- 风险提示 -->
-                    <div class="risk-notice" v-if="currentEmotion.isNegative && currentEmotion.riskLevel > 1">
+                    <div class="risk-notice" v-if="currentEmotion?.isNegative && currentEmotion?.riskLevel > 1">
                         <div class="notice-icon">⚠️</div>
                         <div class="notice-text">
                             <div class="notice-title">温馨提示</div>
-                            <div class="notice-text">{{ currentEmotion.riskDescription }}</div>
+                            <div class="notice-text">{{ currentEmotion?.riskDescription || '' }}</div>
                         </div>
                     </div>
                 </div>
@@ -123,7 +123,7 @@
             <!-- 聊天区域 -->
             <div class="chat-messages">
                 <!-- 欢迎用语 -->
-                <div class="message-item ai-message" v-if="!messages === 0 || messages.length">
+                <div class="message-item ai-message" v-if="messages.length === 0">
                     <div class="message-avatar">
                         <el-image :src="robotUrl" alt="AI助手" style="width: 18px; height: 18px;" lazy />
                     </div>
@@ -220,14 +220,7 @@ const createChat = () => {
     // 清空消息列表
     messages.value = []
     // 重置情绪数据
-    currentEmotion.value = {
-        primaryEmotion: '中性',
-        emotionScore: 50,
-        isNegative: false,
-        riskLevel: 0,
-        suggestion: '情绪状态平稳',
-        keywords: [],
-    }
+    resetEmotion()
 }
 
 // 定义情绪花园
@@ -246,8 +239,40 @@ const loadSessionEmotion = (sessionId) => {
     const id = sessionId.toString().startsWith('session_') ? sessionId : `session_${sessionId}`
     getSessionEmotion(id).then(res => {
         console.log(res, 'res')
-        currentEmotion.value = res.data
+        // ✅ 确保 res.data 存在，否则使用默认值
+        if (res.data) {
+            currentEmotion.value = {
+                // 保留默认值，防止接口返回的数据不完整
+                primaryEmotion: '中性',
+                emotionScore: 50,
+                isNegative: false,
+                riskLevel: 0,
+                suggestion: '情绪状态平稳',
+                keywords: [],
+                riskDescription: '',
+                ...res.data // 用接口返回的数据覆盖默认值
+            }
+        } else {
+            // 接口返回空数据时，重置为默认值
+            resetEmotion()
+        }
+    }).catch(() => {
+        // ✅ 接口报错时，也重置为默认值
+        resetEmotion()
     })
+}
+
+// ✅ 新增：重置情绪数据的函数
+const resetEmotion = () => {
+    currentEmotion.value = {
+        primaryEmotion: '中性',
+        emotionScore: 50,
+        isNegative: false,
+        riskLevel: 0,
+        suggestion: '情绪状态平稳',
+        keywords: [],
+        riskDescription: '',
+    }
 }
 
 const getDotClass = (score) => {
@@ -501,6 +526,7 @@ onMounted(() => {
     fetchSessionList().catch(() => {
         createChat()
     })
+    console.log(messages.value, 'messages.value')
 })
 
 </script>

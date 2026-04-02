@@ -50,7 +50,7 @@ const formData = reactive({
     "password": "",
     "confirmPassword": "",
     "gender": 1,
-    "userType": 2
+    "userType": 1
 })
 const rules = reactive({
     "username": [
