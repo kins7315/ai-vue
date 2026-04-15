@@ -13,13 +13,15 @@
                     <el-image 
                         :src="robotImage" 
                         class="brand-logo" 
-                        alt="心理健康AI助手logo" 
+                        alt="小Klogo" 
                         fit="cover"
                     />
                     <h1 class="brand-name" :class="{ 'brand-name--home': isHomePage }">
-                        心理健康AI助手
+                        小KAI助手
                     </h1>
                 </div>
+                
+                <!-- 桌面端导航 -->
                 <nav class="nav-section">
                     <router-link 
                         v-for="route in navRoutes" 
@@ -60,6 +62,15 @@
                     </el-button>
                 </nav>
 
+                <!-- 移动端菜单按钮 -->
+                <div class="mobile-menu-btn" @click="toggleMobileMenu">
+                    <div class="menu-icon" :class="{ 'menu-icon--open': showMobileMenu }">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+
                 <!-- 用户信息区（已登录） -->
                 <div v-if="isLogin" class="user-section">
                     <el-dropdown class="user-dropdown" @command="handleCommand">
@@ -83,6 +94,61 @@
             </div>
         </header>
 
+        <!-- 移动端菜单 -->
+        <div class="mobile-menu" :class="{ 'mobile-menu--open': showMobileMenu }">
+            <div class="mobile-menu-content">
+                <div class="mobile-menu-header">
+                    <div class="brand-section" @click="router.push('/')">
+                        <el-image 
+                            :src="robotImage" 
+                            class="brand-logo" 
+                            alt="小Klogo" 
+                            fit="cover"
+                        />
+                        <h1 class="brand-name">小KAI助手</h1>
+                    </div>
+                    <div class="mobile-menu-close" @click="toggleMobileMenu">
+                        &times;
+                    </div>
+                </div>
+                <nav class="mobile-nav-section">
+                    <router-link 
+                        v-for="route in navRoutes" 
+                        :key="route.path"
+                        :to="route.path" 
+                        class="mobile-nav-link" 
+                        :class="{ 'mobile-nav-link--active': isActiveRoute(route.path) }"
+                        v-if="!route.requireLogin || isLogin"
+                        @click="toggleMobileMenu"
+                    >
+                        {{ route.name }}
+                    </router-link>
+                    <!-- 未登录：登录/注册 -->
+                    <template v-if="!isLogin">
+                        <router-link 
+                            to="/auth/login" 
+                            class="mobile-nav-link"
+                            @click="toggleMobileMenu"
+                        >
+                            登录
+                        </router-link>
+                        <router-link to="/auth/register" class="mobile-nav-link mobile-nav-link--primary">
+                            注册
+                        </router-link>
+                    </template>
+
+                    <!-- 已登录：退出登录 -->
+                    <div 
+                        v-else
+                        class="mobile-nav-link mobile-logout-btn"
+                        @click="handleLogout"
+                    >
+                        退出登录
+                    </div>
+                </nav>
+            </div>
+        </div>
+
         <!-- 主内容区 -->
         <main class="main-container">
             <router-view></router-view>
@@ -99,19 +165,22 @@ const router = useRouter()
 const route = useRoute()
 
 // 静态资源
-const robotImage = new URL('@/assets/images/机器人.png', import.meta.url).href
-const userImage = new URL('@/assets/images/users.png', import.meta.url).href
+const robotImage = new URL('../assets/images/机器人 .png', import.meta.url).href
+const userImage = new URL('../assets/images/users.png', import.meta.url).href
+
 
 // 状态
 const isLogin = ref(false)
 const userInfo = ref(null)
 const isScrolled = ref(false)
+const showMobileMenu = ref(false)
 
 // 导航路由配置
 const navRoutes = [
     { path: '/', name: '首页', requireLogin: false },
     { path: '/consultation', name: '咨询', requireLogin: true },
     { path: '/emotional-diary', name: '情绪日记', requireLogin: true },
+    { path: '/psychological-assessment', name: '心理评测', requireLogin: false },
     { path: '/knowledge', name: '知识库', requireLogin: false }
 ]
 
@@ -147,8 +216,14 @@ const handleLogout = () => {
         localStorage.removeItem('userInfo')
         isLogin.value = false
         userInfo.value = null
+        showMobileMenu.value = false
         router.push('/auth/login')
     })
+}
+
+// 切换移动端菜单
+const toggleMobileMenu = () => {
+    showMobileMenu.value = !showMobileMenu.value
 }
 
 // 监听页面滚动
@@ -160,7 +235,17 @@ const handleScroll = () => {
 onMounted(() => {
     isLogin.value = localStorage.getItem('token') !== null
     const storedUserInfo = localStorage.getItem('userInfo')
-    userInfo.value = storedUserInfo ? JSON.parse(storedUserInfo) : null
+    if (storedUserInfo && storedUserInfo !== 'undefined' && storedUserInfo !== 'null') {
+        try {
+            userInfo.value = JSON.parse(storedUserInfo)
+        } catch (error) {
+            console.error('Failed to parse userInfo:', error)
+            localStorage.removeItem('userInfo')
+            userInfo.value = null
+        }
+    } else {
+        userInfo.value = null
+    }
     window.addEventListener('scroll', handleScroll)
 })
 
@@ -382,9 +467,209 @@ $transition-normal: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 }
 
+// 移动端菜单按钮
+.mobile-menu-btn {
+    display: none;
+    cursor: pointer;
+    padding: 8px;
+    z-index: 1000;
+    
+    .menu-icon {
+        width: 24px;
+        height: 20px;
+        position: relative;
+        cursor: pointer;
+        
+        span {
+            display: block;
+            position: absolute;
+            height: 2px;
+            width: 100%;
+            background: $text-secondary;
+            border-radius: 2px;
+            opacity: 1;
+            left: 0;
+            transition: all 0.3s ease;
+            
+            &:nth-child(1) {
+                top: 0px;
+            }
+            
+            &:nth-child(2) {
+                top: 9px;
+            }
+            
+            &:nth-child(3) {
+                top: 18px;
+            }
+        }
+        
+        &--open {
+            span {
+                &:nth-child(1) {
+                    top: 9px;
+                    transform: rotate(135deg);
+                }
+                
+                &:nth-child(2) {
+                    opacity: 0;
+                    left: -60px;
+                }
+                
+                &:nth-child(3) {
+                    top: 9px;
+                    transform: rotate(-135deg);
+                }
+            }
+        }
+    }
+    
+    .navbar-wrapper--home & {
+        .menu-icon span {
+            background: $text-white;
+        }
+    }
+}
+
+// 移动端菜单
+.mobile-menu {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 80%;
+    max-width: 300px;
+    height: 100vh;
+    background-color: $bg-white;
+    box-shadow: -4px 0 12px rgba(0, 0, 0, 0.1);
+    z-index: 9999;
+    transition: right 0.3s ease;
+    
+    &--open {
+        right: 0;
+    }
+    
+    .mobile-menu-content {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        padding: 20px;
+    }
+    
+    .mobile-menu-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        
+        .mobile-menu-close {
+            font-size: 24px;
+            cursor: pointer;
+            color: $text-primary;
+            font-weight: bold;
+        }
+    }
+    
+    .mobile-nav-section {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        
+        .mobile-nav-link {
+            padding: 12px 16px;
+            color: $text-secondary;
+            font-size: 16px;
+            font-weight: 500;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: $transition-normal;
+            
+            &:hover {
+                background-color: $bg-hover;
+                color: $primary-color;
+            }
+            
+            &--active {
+                background-color: rgba(102, 187, 106, 0.1);
+                color: $primary-color;
+                font-weight: 600;
+            }
+            
+            &--primary {
+                background-color: $primary-color;
+                color: $text-white;
+                
+                &:hover {
+                    background-color: $primary-hover;
+                    color: $text-white;
+                }
+            }
+        }
+        
+        .mobile-logout-btn {
+            padding: 12px 16px;
+            color: $text-secondary;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: $transition-normal;
+            
+            &:hover {
+                background-color: $bg-hover;
+                color: $primary-color;
+            }
+        }
+    }
+}
+
 // 全局下拉菜单样式
 :deep(.user-dropdown-menu) {
     border-radius: 8px;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+// 响应式设计
+@media (max-width: 768px) {
+    .frontend-layout {
+        .navbar-container {
+            padding: 0 16px;
+        }
+        
+        .nav-section {
+            display: none;
+        }
+        
+        .mobile-menu-btn {
+            display: block;
+        }
+        
+        .brand-name {
+            font-size: 16px;
+        }
+        
+        .brand-logo {
+            width: 36px;
+            height: 36px;
+        }
+        
+        .navbar-wrapper {
+            height: 60px;
+        }
+        
+        .main-container {
+            padding-top: 60px;
+            min-height: calc(100vh - 60px);
+        }
+        
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+        }
+        
+        // 移动端隐藏用户信息区
+        .user-section {
+            display: none;
+        }
+    }
 }
 </style>

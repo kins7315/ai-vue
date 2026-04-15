@@ -42,7 +42,15 @@ const backendRoutes = [
           title: '情绪日志',
           icon: 'User'
         }
-      }
+      },
+      {
+        path: 'psychological-assessment',
+        component: () => import('../views/admin/psyAssessment.vue'),
+        meta: {
+          title: '心理评估',
+          icon: 'MessageBox'
+        }
+      },
     ]
   },
   {
@@ -74,10 +82,6 @@ const frontendRoutes = [
     component: FrontendLayout,
     children: [
       {
-        path: '',
-        component: () => import('../views/front/Home.vue'),
-      },
-      {
         path: 'consultation',
         component: () => import('../views/front/consultation.vue'),
       },
@@ -88,6 +92,10 @@ const frontendRoutes = [
       {
         path: 'knowledge',
         component: () => import('../views/front/frontKnowledge.vue'),
+      },
+      {
+        path: 'psychological-assessment',
+        component: () => import('../views/front/psychologicalAssessment.vue'),
       },
       {
         path: 'knowledge/article/:id',
@@ -107,8 +115,14 @@ const frontendRoutes = [
         component: () => import('../views/userDropdown/Feedback.vue'),
       },
     ]
-  }
+  },
+  {
+    path: '',
+    component: () => import('../views/front/Home.vue'),
+  },
+
 ]
+
 
 const router = createRouter({
   history: createWebHistory(),

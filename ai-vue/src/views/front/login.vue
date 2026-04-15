@@ -79,11 +79,12 @@ const submitForm = async (formEl) => {
                     localStorage.setItem('token', userData.token)
                     localStorage.setItem('userInfo', JSON.stringify(userData.userInfo))
                     ElMessage.success('登录成功')
+                    router.push('/')
                     //根据用户角色跳转到不同的页面
                     if (userData.userInfo.userType === 2) {
                         router.push('/back/dashboard')
                     } else if (userData.userInfo.userType === 1) {
-                        router.push('/')
+                        router.push('/back/dashboard')
                     }
                 }
 

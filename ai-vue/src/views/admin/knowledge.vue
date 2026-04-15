@@ -7,7 +7,7 @@
     </PageHead>
     <TableSearch :form-item="formItem" @search="handleSearch" />
     <el-table :data="tableData" style="width: 100%; margin-top: 25px;">
-      <el-table-column label="文章标题" width="400" fixed="left">
+      <el-table-column label="文章标题" width="150" fixed="left">
         <template #default="scope">
           <div style="display: flex;align-items: center;">
             <el-icon>
@@ -17,7 +17,7 @@
           </div>
         </template>
       </el-table-column>
-      <el-table-column label="分类" width="250">
+      <el-table-column label="分类" width="200">
         <template #default="scope">
           <el-icon>
             <timer />

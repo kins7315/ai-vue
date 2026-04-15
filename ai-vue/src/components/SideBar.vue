@@ -4,7 +4,7 @@
       <div class="brand">
         <el-image style="width: 50px; height: 50px; margin-right: 10px;" :src="iconUrl" alt="logo" />
         <div v-show="!menuStore.isCollapsed" class="info-card">
-          <h1 class="brand-title">心理健康AI助手</h1>
+          <h1 class="brand-title">小KAI助手</h1>
           <p class="brand-subtitle">管理后台</p>
         </div>
       </div>
@@ -24,7 +24,7 @@ import { useMenuStore } from '../store/index'
 
 const menuStore = useMenuStore()  
 const router = useRouter()
-const iconUrl = new URL('@/assets/images/机器人.png', import.meta.url).href
+const iconUrl = new URL('@/assets/images/机器人 .png', import.meta.url).href
 const selectMenu = (path) => {
   console.log(path.index)
   const currentRoute = router.options.routes[0]
